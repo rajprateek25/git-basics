@@ -1,0 +1,76 @@
+Tools Required 
+==============================================
+Virtual Box
+
+Vagrant
+$ cd C:\Users\prateera\Documents\Vagrant\machine_<##>
+$ vagrant init oraclelinux/7 https://oracle.github.io/vagrant-projects/boxes/oraclelinux/7.json
+$ vagrant up
+$ vagrant ssh
+
+Proxy Details
+==============================================
+$ export https_proxy=www-proxy.us.oracle.com:80
+$ export http_proxy=www-proxy.us.oracle.com:80
+
+To make permanent 
+$ cat /etc/profile
+  export https_proxy=www-proxy.us.oracle.com:80
+  export http_proxy=www-proxy.us.oracle.com:80
+
+ssh Configuration
+==============================================
+$ cat /srv/os_mgmt/ssh.cfg
+Host *
+  Compression yes
+  ConnectionAttempts 5
+  ControlMaster auto
+  ControlPath /tmp/%u-%r@%h:%p
+  ControlPersist 8h
+  IdentityFile ../keys/%h
+  ServerAliveCountMax 5
+  ServerAliveInterval 15
+  StrictHostKeyChecking no
+  TCPKeepAlive yes
+  User opc
+Host *.opc.oracleoutsourcing.com
+  User opc
+  ProxyJump prateera@uinov1100.us.oracle.com
+Host uinov1100.us.oracle.com
+  User prateera
+Host 129.147.170.27									#Private IP of test DBaaS in test tenancy aucalva01
+  User opc
+  ProxyJump prateera@uinov1100.us.oracle.com
+  
+[NOTE:]	Add host details (Host/User/ProxyJump)for each server to be accessed from vagrant box 
+
+$ cat /root/.ssh/config
+Host *
+  ConnectTimeout 1
+  ControlMaster auto
+  ControlPersist 24h
+  IdentityFile /srv/keys/%h
+  ControlPath /tmp/%u-%r@%h:%p
+  ControlPath /tmp/%C
+  ServerAliveInterval 60
+Host *.opc.oracleoutsourcing.com
+  User opc
+  ProxyJump vburamdo@uinov1100.us.oracle.com
+
+Packages to be installed
+==============================================
+$ rpm -qa |grep -i oci
+python-oci-sdk-2.17.0-1.el7.x86_64
+oci-ansible-modules-1.18.0-1.0.1.el7.noarch
+$ rpm -qa | grep -i ansible.
+ansible-2.9.9-1.el7.ans.noarch
+
+Ansible Version
+==============================================
+$ ansible --version
+ansible 2.9.9
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /bin/ansible
+  python version = 2.7.5 (default, Aug  7 2019, 08:19:52) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39.0.1)]
